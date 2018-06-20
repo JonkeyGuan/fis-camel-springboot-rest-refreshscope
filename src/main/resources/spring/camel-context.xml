@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:camel="http://camel.apache.org/schema/spring"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    <!-- Define a traditional camel context here -->
+    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+        <restConfiguration bindingMode="auto" component="jetty" port="8088"/>
+        <rest path="/guest/">
+            <get uri="/{id}">
+                <to uri="direct:getGuest"/>
+            </get>
+        </rest>
+        <route id="_route1">
+            <from id="_from1" uri="direct:getGuest"/>
+            <delay id="_delay1">
+                <constant>1</constant>
+            </delay>
+            <transform id="route-transform">
+                <method ref="myTransformer"/>
+            </transform>
+            <delay id="_delay2">
+                <constant>1</constant>
+            </delay>
+            <log id="route-log" message=">>> Version 4: Test GitHook Trigger: ${header.id} -> ${body}"/>
+        </route>
+        <!-- <route id="simple-route"> <from id="route-timer" uri="timer:foo?period=2000" 
+			/> <transform id="route-transform"> <method ref="myTransformer" /> </transform> 
+			<log id="route-log" message=">>> Version 4: Test GitHook Trigger: ${body}" 
+			/> </route> -->
+    </camelContext>
+</beans>
